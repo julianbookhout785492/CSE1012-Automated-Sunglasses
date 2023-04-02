@@ -2,7 +2,7 @@
 #include "Adafruit_LTR390.h"
 #include <Servo.h>
 
-#define potPin A0
+#define potPin A1
 
 Adafruit_LTR390 ltr = Adafruit_LTR390();
 Servo servoOne;
@@ -24,6 +24,7 @@ void setup()
 {
   servoOne.attach(servoPin);
   servoOne.write(servoPos);
+  
   servoTwo.attach(servoPin2);
   servoTwo.write(servo2Pos);
 
@@ -95,20 +96,34 @@ void setup()
 
   ltr.setThresholds(100, 1000);
   ltr.configInterrupt(true, LTR390_MODE_UVS);
+ 
+ 
+ //delay(1000);
+///servoPos = down;
+ // servoOne.write(servoPos);
+  // delay(1000);
+  //servoPos = up;
+  //servoOne.write(servoPos);
+
+  
 }
 
 void loop()
 {
   dial = analogRead(potPin);
+  Serial.print("dial: ");
   Serial.println(dial);
+  Serial.print("servoPos: ");
+  Serial.println(servoPos);
   if (ltr.newDataAvailable())
   {
     Serial.print("UV data: ");
     Serial.println(ltr.readUVS());
     uvLight = ltr.readUVS();
   }
+   delay(1000);
   /*
-   if (uvLight > uvDanger) //&& (servoPos = up))
+   if ((uvLight > uvDanger) && (servoPos = up))
   {
     servoPos = down;
 servoOne.write(servoPos);
@@ -117,7 +132,7 @@ Serial.println(servoPos);
 
 
 
-  else if(uvLight < uvDanger) //&& (servoPos = down))
+  else if((uvLight < uvDanger) //&& (servoPos = down))
   {
     servoPos = up;
   servoOne.write(servoPos);
@@ -127,32 +142,62 @@ Serial.println(servoPos);
   delay(1000);
   */
 
-  if ((dial < 256) && (previousValue == 2 || 3 || 4))
+
+
+  if ((dial < 256) && ((previousValue == 2) || (previousValue == 3) || (previousValue == 4)))
   {
     servoPos = up;
     previousValue = 1;
     servoOne.write(servoPos);
     Serial.println(servoPos);
+    Serial.println(previousValue);
   }
-  else if ((dial > 256) && (dial < 512) && (previousValue == 1 || 3 || 4))
+  else if ((dial >= 256) && (dial < 512) && ((previousValue == 1) || (previousValue == 3) || (previousValue == 4)))
   {
     // UVmode();
+Serial.println("UVmode");
+     if (uvLight > uvDanger)
+      {
+      servoPos = down;
+      servoOne.write(servoPos);
+      Serial.println(servoPos);
+      }
+      else 
+      {
+      servoPos = up;
+      servoOne.write(servoPos);
+      Serial.println(servoPos);
+      }
+   
     previousValue = 2;
+    Serial.println(previousValue);
   }
-  else if ((dial > 512) && (dial < 768) && (previousValue == 1 || 2 || 4))
+  else if ((dial >= 512) && (dial < 768) && ((previousValue == 2) || (previousValue == 1) || (previousValue == 4)))
   {
+      previousValue = 3;
     // ambient mode???
     // ambientMode();
+    Serial.println(previousValue);
   }
-  else if ((dial > 768) && (previousValue == 1 || 2 || 3))
+  else if ((dial >= 768) && ((previousValue == 2) || (previousValue == 3) || (previousValue == 1)))
   {
+      previousValue = 4;
     servoPos = down;
     servoOne.write(servoPos);
     Serial.println(servoPos);
+    Serial.println(previousValue);
+  }
+  else
+  {
+  //nothing
   }
 
   delay(1000);
+
 }
+
+
+
 
 // To be added/modified
 /*
